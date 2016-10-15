@@ -4,12 +4,8 @@ class Board {
   
   static final float THERMOMETER_MIN = -2; // Minimum climate slider value
   static final float THERMOMETER_MAX = 2; // Maximum climate slider value
-  final int ROCKS_TO_ADD;
-  static final float MIN_ROCK_ENERGY_BASE = 0.8;
-  static final float MAX_ROCK_ENERGY_BASE = 1.6;
   static final float MIN_CREATURE_ENERGY = 1.2; // Minimum energy of newly added primordial creatures.
   static final float MAX_CREATURE_ENERGY = 2.0; // Maximum energy of newly added primordial creatures.
-  static final float ROCK_DENSITY = 5;
   static final float OBJECT_TIMESTEPS_PER_YEAR = 100;
   final color ROCK_COLOR = color(0, 0, 0.5);
   final color BACKGROUND_COLOR = color(0, 0, 0.1);
@@ -34,7 +30,6 @@ class Board {
   double year = 0; // The current date of the simulation
   
   ArrayList[][] softBodiesInPositions;
-  ArrayList<SoftBody> rocks;
   ArrayList<Creature> creatures;
   Creature selectedCreature = null;
   int creatureIDUpTo = 0;
@@ -59,7 +54,7 @@ class Board {
   double recordPopulationEvery = 0.02;
   int playSpeed = 1;
 
-  public Board(int w, int h, float stepSize, float min, float max, int rta, int cm, int SEED, String INITIAL_FILE_NAME, double ts) {
+  public Board(int w, int h, float stepSize, float min, float max, int cm, int SEED, String INITIAL_FILE_NAME, double ts) {
     noiseSeed(SEED);
     randomSeed(SEED);
     boardWidth = w;
@@ -82,13 +77,6 @@ class Board {
       for (int y = 0; y < boardHeight; y++) {
         softBodiesInPositions[x][y] = new ArrayList<SoftBody>(0);
       }
-    }
-
-    ROCKS_TO_ADD = rta;
-    rocks = new ArrayList<SoftBody>(0);
-    for (int i = 0; i < ROCKS_TO_ADD; i++) {
-      rocks.add(new SoftBody(random(0, boardWidth), random(0, boardHeight), 0, 0, 
-        getRandomSize(), ROCK_DENSITY, hue(ROCK_COLOR), saturation(ROCK_COLOR), brightness(ROCK_COLOR), this, year));
     }
 
     creatureMinimum = cm;
@@ -116,9 +104,6 @@ class Board {
       for (int y = 0; y < boardHeight; y++) {
         tiles[x][y].drawTile(scaleUp, (mX == x && mY == y));
       }
-    }
-    for (int i = 0; i < rocks.size(); i++) {
-      rocks.get(i).drawSoftBody(scaleUp);
     }
     for (int i = 0; i < creatures.size(); i++) {
       creatures.get(i).drawSoftBody(scaleUp, camZoom, true);
@@ -400,9 +385,6 @@ class Board {
     finishIterate(timeStep);
   }
   public void finishIterate(double timeStep) {
-    for (int i = 0; i < rocks.size(); i++) {
-      rocks.get(i).applyMotions(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
-    }
     for (int i = 0; i < creatures.size(); i++) {
       creatures.get(i).applyMotions(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
       creatures.get(i).see(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
@@ -518,9 +500,7 @@ class Board {
     int index = (int)(random(0, creatures.size()));
     return creatures.get(index);
   }
-  private double getRandomSize() {
-    return pow(random(MIN_ROCK_ENERGY_BASE, MAX_ROCK_ENERGY_BASE), 4);
-  }
+
   private void drawCreature(Creature c, float x, float y, float scale, float scaleUp) {
     pushMatrix();
     float scaleIconUp = scaleUp*scale;

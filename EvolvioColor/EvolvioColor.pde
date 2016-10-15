@@ -10,7 +10,6 @@ final double TIME_STEP = 0.001;
 final float MIN_TEMPERATURE = -0.5;
 final float MAX_TEMPERATURE = 1.0;
 
-final int ROCKS_TO_ADD = 0;
 final int CREATURE_MINIMUM = 60;
 
 float scaleFactor;
@@ -41,8 +40,7 @@ void setup() {
   surface.setResizable(true);
   colorMode(HSB, 1.0);
   font = loadFont("Jygquip1-48.vlw");
-  evoBoard = new Board(BOARD_WIDTH, BOARD_HEIGHT, NOISE_STEP_SIZE, MIN_TEMPERATURE, MAX_TEMPERATURE, 
-    ROCKS_TO_ADD, CREATURE_MINIMUM, SEED, INITIAL_FILE_NAME, TIME_STEP);
+  evoBoard = new Board(BOARD_WIDTH, BOARD_HEIGHT, NOISE_STEP_SIZE, MIN_TEMPERATURE, MAX_TEMPERATURE, CREATURE_MINIMUM, SEED, INITIAL_FILE_NAME, TIME_STEP);
   resetZoom();
 }
 void draw() {
