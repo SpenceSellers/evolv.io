@@ -19,8 +19,8 @@ class Creature extends SoftBody {
   static final int BRAIN_HEIGHT = 13;
   final String[] BRAIN_INPUT_LABELS = {"0Hue", "0Sat", "0Bri", "1Hue", 
       "1Sat", "1Bri", "2Hue", "2Sat", "2Bri", "Size", "MHue", "Mem", "Const."};
-  final String[] BRAIN_OUTPUT_LABELS = {"BHue", "Accel.", "Turn", "Eat", "Fight", "Birth", "How funny?", 
-      "How popular?", "How generous?", "How smart?", "MHue", "Mem", "Const."};
+  final String[] BRAIN_OUTPUT_LABELS = {"BHue", "Accel.", "Turn", "Eat", "Fight", "Birth", "?", 
+      "?", "?", "?", "MHue", "Mem", "Const."};
   static final double STARTING_AXON_VARIABILITY = 1.0;
   static final double AXON_START_MUTABILITY = 0.0005;
   
