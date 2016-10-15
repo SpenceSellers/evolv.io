@@ -79,7 +79,7 @@ class Board {
     for (int i = 0; i < LIST_SLOTS; i++) {
       list[i] = null;
     }
-    userControl = true;
+    userControl = false; // Start at brain control
     timeStep = ts;
     populationHistory = new int[POPULATION_HISTORY_LENGTH];
     for (int i = 0; i < POPULATION_HISTORY_LENGTH; i++) {
@@ -187,8 +187,8 @@ class Board {
 
       textFont(font, 19);
       String[] buttonTexts = {"Brain Control", "Maintain pop. at "+creatureMinimum, 
-        "Screenshot now", "-   Old 1   +", 
-        "Text file now", "-    Old 2    +", 
+        "Old 1", "-   Old 1   +", 
+        "Old 1", "-    Old 2    +", 
         "-    Play Speed ("+playSpeed+"x)    +", "This button does nothing"};
       if (userControl) {
         buttonTexts[0] = "Keyboard Control";
