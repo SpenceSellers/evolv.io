@@ -17,6 +17,10 @@ class Creature extends SoftBody {
   
   static final int BRAIN_WIDTH = 3;
   static final int BRAIN_HEIGHT = 13;
+  final String[] BRAIN_INPUT_LABELS = {"0Hue", "0Sat", "0Bri", "1Hue", 
+      "1Sat", "1Bri", "2Hue", "2Sat", "2Bri", "Size", "MHue", "Mem", "Const."};
+  final String[] BRAIN_OUTPUT_LABELS = {"BHue", "Accel.", "Turn", "Eat", "Fight", "Birth", "How funny?", 
+      "How popular?", "How generous?", "How smart?", "MHue", "Mem", "Const."};
   static final double STARTING_AXON_VARIABILITY = 1.0;
   static final double AXON_START_MUTABILITY = 0.0005;
   
@@ -119,15 +123,12 @@ class Creature extends SoftBody {
     strokeWeight(2);
     textFont(font, 0.58*scaleUp);
     fill(0, 0, 1);
-    String[] inputLabels = {"0Hue", "0Sat", "0Bri", "1Hue", 
-      "1Sat", "1Bri", "2Hue", "2Sat", "2Bri", "Size", "MHue", "Mem", "Const."};
-    String[] outputLabels = {"BHue", "Accel.", "Turn", "Eat", "Fight", "Birth", "How funny?", 
-      "How popular?", "How generous?", "How smart?", "MHue", "Mem", "Const."};
+    
     for (int y = 0; y < BRAIN_HEIGHT; y++) {
       textAlign(RIGHT);
-      text(inputLabels[y], (-neuronSize-0.1)*scaleUp, (y+(neuronSize*0.6))*scaleUp);
+      text(BRAIN_INPUT_LABELS[y], (-neuronSize-0.1)*scaleUp, (y+(neuronSize*0.6))*scaleUp);
       textAlign(LEFT);
-      text(outputLabels[y], (BRAIN_WIDTH-1+neuronSize+0.1)*scaleUp, (y+(neuronSize*0.6))*scaleUp);
+      text(BRAIN_OUTPUT_LABELS[y], (BRAIN_WIDTH-1+neuronSize+0.1)*scaleUp, (y+(neuronSize*0.6))*scaleUp);
     }
     textAlign(CENTER);
     for (int x = 0; x < BRAIN_WIDTH; x++) {
