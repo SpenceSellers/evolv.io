@@ -37,6 +37,7 @@ void settings() {
   size(windowWidth, windowHeight);
 }
 void setup() {
+  DisposeHandler dh = new DisposeHandler(this);
   surface.setResizable(true);
   colorMode(HSB, 1.0);
   font = loadFont("Jygquip1-48.vlw");
@@ -199,6 +200,20 @@ void mouseReleased() {
   }
   dragging = 0;
 }
+
+public class DisposeHandler {
+   
+  DisposeHandler(PApplet pa)
+  {
+    pa.registerMethod("dispose", this);
+  }
+   
+  public void dispose()
+  {      
+    PerfTimer.printTimes();
+  }
+}
+
 void resetZoom() {
   cameraX = BOARD_WIDTH*0.5;
   cameraY = BOARD_HEIGHT*0.5;

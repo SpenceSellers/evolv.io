@@ -158,6 +158,8 @@ class Creature extends SoftBody {
     line(x1*scaleUp, y1*scaleUp, x2*scaleUp, y2*scaleUp);
   }
   public void useBrain(double timeStep, boolean useOutput) {
+    PerfTimer pt = new PerfTimer("UseBrain");
+    PerfTimer ptb = new PerfTimer("useBrain.calcBrain");
     for (int i = 0; i < 9; i++) {
       neurons[0][i] = visionResults[i];
     }
@@ -179,6 +181,7 @@ class Creature extends SoftBody {
         }
       }
     }
+    ptb.end();
     if (useOutput) {
       int end = BRAIN_WIDTH-1;
       hue = Math.abs(neurons[end][0]) % 1.0;
@@ -194,6 +197,8 @@ class Creature extends SoftBody {
         memories[i] = neurons[end][11+i];
       }
     }
+    
+    pt.end();
   }
   public double sigmoid(double input) {
     return 1.0/(1.0+Math.pow(2.71828182846, -input));
@@ -371,6 +376,17 @@ class Creature extends SoftBody {
     }
   }
   public void see(double timeStep) {
+    PerfTimer pt = new PerfTimer("Creature See");
+    ArrayList<Creature> seeableCreatures = new ArrayList<Creature>();
+    for (Creature cr: this.board.creatures){
+        if (cr != this && distance(this.px, this.py, cr.px, cr.py) < 1.0){
+          seeableCreatures.add(cr);
+        }
+    }
+    
+    if (seeableCreatures.size() == 0){
+        return;
+    }
     for (int k = 0; k < visionAngles.length; k++) {
       double visionStartX = px;
       double visionStartY = py;
@@ -385,25 +401,18 @@ class Creature extends SoftBody {
       visionResults[k*3] = hue(c);
       visionResults[k*3+1] = saturation(c);
       visionResults[k*3+2] = brightness(c);
+      
+      
 
       int tileX = 0;
       int tileY = 0;
       int prevTileX = -1;
       int prevTileY = -1;
-      ArrayList<SoftBody> potentialVisionOccluders = new ArrayList<SoftBody>();
-      for (int DAvision = 0; DAvision < visionDistances[k]+1; DAvision++) {
-        tileX = (int)(visionStartX+Math.cos(visionTotalAngle)*DAvision);
-        tileY = (int)(visionStartY+Math.sin(visionTotalAngle)*DAvision);
-        if (tileX != prevTileX || tileY != prevTileY) {
-          addPVOs(tileX, tileY, potentialVisionOccluders);
-          if (prevTileX >= 0 && tileX != prevTileX && tileY != prevTileY) {
-            addPVOs(prevTileX, tileY, potentialVisionOccluders);
-            addPVOs(tileX, prevTileY, potentialVisionOccluders);
-          }
-        }
-        prevTileX = tileX;
-        prevTileY = tileY;
-      }
+      
+      
+      
+      ArrayList<Creature> potentialVisionOccluders = seeableCreatures;
+      
       double[][] rotationMatrix = new double[2][2];
       rotationMatrix[1][1] = rotationMatrix[0][0] = Math.cos(-visionTotalAngle);
       rotationMatrix[0][1] = Math.sin(-visionTotalAngle);
@@ -414,12 +423,14 @@ class Creature extends SoftBody {
         double x = body.px-px;
         double y = body.py-py;
         double r = body.getRadius();
+        //if (Math.abs(x) > 1.0 || Math.abs(y) > 1.0){
+        //  continue;
+        //}
         double translatedX = rotationMatrix[0][0]*x+rotationMatrix[1][0]*y;
         double translatedY = rotationMatrix[0][1]*x+rotationMatrix[1][1]*y;
         if (Math.abs(translatedY) <= r) {
           if ((translatedX >= 0 && translatedX < visionLineLength && translatedY < visionLineLength) ||
-            distance(0, 0, translatedX, translatedY) < r ||
-            distance(visionLineLength, 0, translatedX, translatedY) < r) { // YES! There is an occlussion.
+            distance(0, 0, translatedX, translatedY) < r || distance(visionLineLength, 0, translatedX, translatedY) < r) { // YES! There is an occlussion.
             visionLineLength = translatedX-Math.sqrt(r*r-translatedY*translatedY);
             visionOccludedX[k] = visionStartX+visionLineLength*Math.cos(visionTotalAngle);
             visionOccludedY[k] = visionStartY+visionLineLength*Math.sin(visionTotalAngle);
@@ -430,6 +441,7 @@ class Creature extends SoftBody {
         }
       }
     }
+    pt.end();
   }
   public color getColorAt(double x, double y) {
     if (x >= 0 && x < board.boardWidth && y >= 0 && y < board.boardHeight) {
@@ -441,16 +453,7 @@ class Creature extends SoftBody {
   public double distance(double x1, double y1, double x2, double y2) {
     return(Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)));
   }
-  public void addPVOs(int x, int y, ArrayList<SoftBody> PVOs) {
-    if (x >= 0 && x < board.boardWidth && y >= 0 && y < board.boardHeight) {
-      for (int i = 0; i < board.softBodiesInPositions[x][y].size(); i++) {
-        SoftBody newCollider = (SoftBody)board.softBodiesInPositions[x][y].get(i);
-        if (!PVOs.contains(newCollider) && newCollider != this) {
-          PVOs.add(newCollider);
-        }
-      }
-    }
-  }
+
   public void returnToEarth() {
     int pieces = 20;
     double radius = (float)getRadius();
@@ -568,12 +571,14 @@ class Creature extends SoftBody {
   }
 
   public void applyMotions(double timeStep) {
+    PerfTimer pt = new PerfTimer("Creature applyMotions");
     if (getRandomCoveredTile().isWater()) {
       loseEnergy(SWIM_ENERGY*energy);
     }
     super.applyMotions(timeStep);
     rotation += vr;
     vr *= Math.max(0, 1-FRICTION/getMass());
+    pt.end();
   }
   public double getEnergyUsage(double timeStep) {
     return (energy-previousEnergy[ENERGY_HISTORY_LENGTH-1])/ENERGY_HISTORY_LENGTH/timeStep;

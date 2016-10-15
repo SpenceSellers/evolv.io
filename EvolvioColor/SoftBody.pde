@@ -44,6 +44,7 @@ class SoftBody {
     ENERGY_DENSITY = 1.0/(tb.MINIMUM_SURVIVABLE_SIZE*tb.MINIMUM_SURVIVABLE_SIZE*PI);
   }
   public void setSBIP(boolean shouldRemove) {
+    PerfTimer pt = new PerfTimer("setSBIP");
     double radius = getRadius()*FIGHT_RANGE;
     prevSBIPMinX = SBIPMinX;
     prevSBIPMinY = SBIPMinY;
@@ -74,6 +75,7 @@ class SoftBody {
         }
       }
     }
+    pt.end();
   }
   public int xBound(int x) {
     return Math.min(Math.max(x, 0), board.boardWidth-1);
@@ -90,6 +92,7 @@ class SoftBody {
     return Math.min(Math.max(y, radius), board.boardHeight-radius);
   }
   public void collide(double timeStep) {
+    PerfTimer pt = new PerfTimer("collide");
     colliders = new ArrayList<SoftBody>(0);
     for (int x = SBIPMinX; x <= SBIPMaxX; x++) {
       for (int y = SBIPMinY; y <= SBIPMaxY; y++) {
@@ -112,6 +115,7 @@ class SoftBody {
       }
     }
     fightLevel = 0;
+    pt.end();
   }
   public void applyMotions(double timeStep) {
     px = xBodyBound(px+vx*timeStep);

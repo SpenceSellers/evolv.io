@@ -98,6 +98,7 @@ class Board {
     rect(0, 0, scaleUp*boardWidth, scaleUp*boardHeight);
   }
   public void drawUI(float scaleUp, float camZoom, double timeStep, int x1, int y1, int x2, int y2, PFont font) {
+    PerfTimer pt = new PerfTimer("drawUI");
     fill(0, 0, 0);
     noStroke();
     rect(x1, y1, x2-x1, y2-y1);
@@ -241,6 +242,8 @@ class Board {
       float apY = round((mouseY-80-y1)/46.0);
       selectedCreature.drawBrain(font, 46, (int)apX, (int)apY);
       popMatrix();
+      
+      
     }
     drawPopulationGraph(x1, x2, y1, y2);
     fill(0, 0, 0);
@@ -260,6 +263,8 @@ class Board {
     if (selectedCreature != null) {
       drawCreature(selectedCreature, x1+65, y1+147, 2.3, scaleUp);
     }
+    
+    pt.end();
   }
   void drawPopulationGraph(float x1, float x2, float y1, float y2) {
     float barWidth = (x2-x1)/((float)(POPULATION_HISTORY_LENGTH));
@@ -277,6 +282,8 @@ class Board {
     }
   }
   public void iterate(double timeStep) {
+    PerfTimer pt = new PerfTimer("ITERATE");
+    PerfTimer pth = new PerfTimer("Pophistory");
     double prevYear = year;
     year += timeStep;
     if (Math.floor(year/recordPopulationEvery) != Math.floor(prevYear/recordPopulationEvery)) {
@@ -285,6 +292,10 @@ class Board {
       }
       populationHistory[0] = creatures.size();
     }
+    pth.end();
+    
+    
+    
     temperature = getGrowthRate(getSeason());
     double tempChangeIntoThisFrame = temperature-getGrowthRate(getSeason()-timeStep);
     double tempChangeOutOfThisFrame = getGrowthRate(getSeason()+timeStep)-temperature;
@@ -319,6 +330,7 @@ class Board {
       }
     }
     finishIterate(timeStep);
+    pt.end();
   }
   public void finishIterate(double timeStep) {
     for (int i = 0; i < creatures.size(); i++) {
