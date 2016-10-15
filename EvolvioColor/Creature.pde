@@ -329,7 +329,7 @@ class Creature extends SoftBody {
         foodToEat = coveredTile.foodLevel;
       }
       coveredTile.removeFood(foodToEat, true);
-      double foodDistance = Math.abs(coveredTile.foodType-mouthHue);
+      double foodDistance = Math.abs(coveredTile.climateType-mouthHue);
       double multiplier = 1.0-foodDistance/FOOD_SENSITIVITY;
       if (multiplier >= 0) {
         addEnergy(foodToEat*multiplier);
@@ -366,7 +366,7 @@ class Creature extends SoftBody {
     if (energyLost > 0) {
       energyLost = Math.min(energyLost, energy);
       energy -= energyLost;
-      getRandomCoveredTile().addFood(energyLost, hue, true);
+      getRandomCoveredTile().addFood(energyLost, true);
     }
   }
   public void see(double timeStep) {
@@ -454,7 +454,7 @@ class Creature extends SoftBody {
     int pieces = 20;
     double radius = (float)getRadius();
     for (int i = 0; i < pieces; i++) {
-      getRandomCoveredTile().addFood(energy/pieces, hue, true);
+      getRandomCoveredTile().addFood(energy/pieces, true);
     }
     for (int x = SBIPMinX; x <= SBIPMaxX; x++) {
       for (int y = SBIPMinY; y <= SBIPMaxY; y++) {
@@ -567,7 +567,7 @@ class Creature extends SoftBody {
   }
 
   public void applyMotions(double timeStep) {
-    if (getRandomCoveredTile().fertility > 1) {
+    if (getRandomCoveredTile().isWater()) {
       loseEnergy(SWIM_ENERGY*energy);
     }
     super.applyMotions(timeStep);

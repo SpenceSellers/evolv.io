@@ -13,8 +13,6 @@ class Tile {
   private double lastUpdateTime = 0;
 
   public double climateType; // The type (color) of the food that grows on this tile. Between 0 and 1.
-  public double foodType; // The type of food that is actually on the tile. Currently the same as climateType.
-
   Board board;
 
   public Tile(int x, int y, double f, float food, float type, Board b) {
@@ -22,7 +20,7 @@ class Tile {
     posY = y;
     fertility = Math.max(0, f);
     foodLevel = Math.max(0, food);
-    climateType = foodType = type;
+    climateType = type;
     board = b;
   }
   public double getFertility() {
@@ -37,6 +35,11 @@ class Tile {
   public void setFoodLevel(double f) {
     foodLevel = f;
   }
+  
+  public boolean isWater() {
+    return this.fertility > 1; 
+  }
+  
   public void drawTile(float scaleUp, boolean showEnergy) {
     stroke(0, 0, 0, 1);
     strokeWeight(2);
@@ -53,21 +56,20 @@ class Tile {
       textFont(font, 21);
       text(nf((float)(100*foodLevel), 0, 2)+" yums", (posX+0.5)*scaleUp, (posY+0.3)*scaleUp);
       text("Clim: "+nf((float)(climateType), 0, 2), (posX+0.5)*scaleUp, (posY+0.6)*scaleUp);
-      text("Food: "+nf((float)(foodType), 0, 2), (posX+0.5)*scaleUp, (posY+0.9)*scaleUp);
     }
   }
   public void iterate() {
     double updateTime = board.year;
     if (Math.abs(lastUpdateTime-updateTime) >= 0.00001) {
       double growthChange = board.getGrowthOverTimeRange(lastUpdateTime, updateTime);
-      if (fertility > 1) { // This means the tile is water.
+      if (this.isWater()) {
         foodLevel = 0;
       } else {
         if (growthChange > 0) { // Food is growing. Exponentially approach maxGrowthLevel.
           if (foodLevel < maxGrowthLevel) {
             double newDistToMax = (maxGrowthLevel-foodLevel)*Math.pow(2.71828182846, -growthChange*fertility*FOOD_GROWTH_RATE);
             double foodGrowthAmount = (maxGrowthLevel-newDistToMax)-foodLevel;
-            addFood(foodGrowthAmount, climateType, false);
+            addFood(foodGrowthAmount, false);
           }
         } else { // Food is dying off. Exponentially approach 0.
           removeFood(foodLevel-foodLevel*Math.pow(2.71828182846, growthChange*FOOD_GROWTH_RATE), false);
@@ -85,14 +87,11 @@ class Tile {
       lastUpdateTime = updateTime;
     }
   }
-  public void addFood(double amount, double addedFoodType, boolean canCauseIteration) {
+  public void addFood(double amount, boolean canCauseIteration) {
     if (canCauseIteration) {
       iterate();
     }
     foodLevel += amount;
-    /*if (foodLevel > 0) {
-     foodType += (addedFoodType-foodType)*(amount/foodLevel); // We're adding new plant growth, so we gotta "mix" the colors of the tile.
-     }*/
   }
   public void removeFood(double amount, boolean canCauseIteration) {
     if (canCauseIteration) {
@@ -102,8 +101,8 @@ class Tile {
   }
   public color getColor() {
     iterate();
-    color foodColor = color((float)(foodType), 1, 1);
-    if (fertility > 1) {
+    color foodColor = color((float)(climateType), 1, 1);
+    if (this.isWater()) {
       return waterColor;
     } else if (foodLevel < maxGrowthLevel) {
       return interColorFixedHue(interColor(barrenColor, fertileColor, fertility), foodColor, foodLevel/maxGrowthLevel, hue(foodColor));
