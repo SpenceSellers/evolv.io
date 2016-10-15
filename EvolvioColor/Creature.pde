@@ -1,3 +1,7 @@
+import java.util.function.Predicate;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 class Creature extends SoftBody {
   static final double ACCELERATION_ENERGY = 0.18;
   static final double ACCELERATION_BACK_ENERGY = 0.24;
@@ -158,6 +162,9 @@ class Creature extends SoftBody {
     line(x1*scaleUp, y1*scaleUp, x2*scaleUp, y2*scaleUp);
   }
   public void useBrain(double timeStep, boolean useOutput) {
+    
+    
+    
     PerfTimer pt = new PerfTimer("UseBrain");
     PerfTimer ptb = new PerfTimer("useBrain.calcBrain");
     for (int i = 0; i < 9; i++) {
@@ -377,12 +384,14 @@ class Creature extends SoftBody {
   }
   public void see(double timeStep) {
     PerfTimer pt = new PerfTimer("Creature See");
-    ArrayList<Creature> seeableCreatures = new ArrayList<Creature>();
-    for (Creature cr: this.board.creatures){
-        if (cr != this && distance(this.px, this.py, cr.px, cr.py) < 1.0){
-          seeableCreatures.add(cr);
+    
+    class CloseTester implements Predicate<Creature> {
+        public boolean test(Creature cr){
+          return cr != Creature.this && distance(Creature.this.px, Creature.this.py, cr.px, cr.py) < 1.0;
         }
     }
+    
+    Set<Creature> seeableCreatures = (Set<Creature>)(Object) board.creatures.stream().filter(new CloseTester()).collect(Collectors.toSet());
     
     if (seeableCreatures.size() == 0){
         return;
@@ -402,35 +411,26 @@ class Creature extends SoftBody {
       visionResults[k*3+1] = saturation(c);
       visionResults[k*3+2] = brightness(c);
       
-      
-
       int tileX = 0;
       int tileY = 0;
       int prevTileX = -1;
       int prevTileY = -1;
-      
-      
-      
-      ArrayList<Creature> potentialVisionOccluders = seeableCreatures;
       
       double[][] rotationMatrix = new double[2][2];
       rotationMatrix[1][1] = rotationMatrix[0][0] = Math.cos(-visionTotalAngle);
       rotationMatrix[0][1] = Math.sin(-visionTotalAngle);
       rotationMatrix[1][0] = -rotationMatrix[0][1];
       double visionLineLength = visionDistances[k];
-      for (int i = 0; i < potentialVisionOccluders.size(); i++) {
-        SoftBody body = potentialVisionOccluders.get(i);
+      for (Creature body: seeableCreatures) {
         double x = body.px-px;
         double y = body.py-py;
         double r = body.getRadius();
-        //if (Math.abs(x) > 1.0 || Math.abs(y) > 1.0){
-        //  continue;
-        //}
+
         double translatedX = rotationMatrix[0][0]*x+rotationMatrix[1][0]*y;
         double translatedY = rotationMatrix[0][1]*x+rotationMatrix[1][1]*y;
         if (Math.abs(translatedY) <= r) {
-          if ((translatedX >= 0 && translatedX < visionLineLength && translatedY < visionLineLength) ||
-            distance(0, 0, translatedX, translatedY) < r || distance(visionLineLength, 0, translatedX, translatedY) < r) { // YES! There is an occlussion.
+          if ((translatedX >= 0 && translatedX < visionLineLength && translatedY < visionLineLength) || 
+              distance(0, 0, translatedX, translatedY) < r || distance(visionLineLength, 0, translatedX, translatedY) < r) { // YES! There is an occlussion.
             visionLineLength = translatedX-Math.sqrt(r*r-translatedY*translatedY);
             visionOccludedX[k] = visionStartX+visionLineLength*Math.cos(visionTotalAngle);
             visionOccludedY[k] = visionStartY+visionLineLength*Math.sin(visionTotalAngle);
