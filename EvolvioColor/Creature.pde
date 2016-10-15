@@ -49,8 +49,6 @@ class Creature extends SoftBody {
   static final int MEMORY_COUNT = 1;
   double[] memories;
 
-
-
   double mouthHue;
   NameGenerator nameGenerator = new NameGenerator();
 
@@ -100,10 +98,7 @@ class Creature extends SoftBody {
     }
     parents = tparents;
     board.creatureIDUpTo++;
-    //visionAngle = 0;
-    //visionDistance = 0;
-    //visionEndX = getVisionStartX();
-    //visionEndY = getVisionStartY();
+
     for (int i = 0; i < 9; i++) {
       visionResults[i] = 0;
     }
@@ -253,7 +248,7 @@ class Creature extends SoftBody {
         visionUIcolor = color(0, 0, 0);
       }
       stroke(visionUIcolor);
-      strokeWeight(board.CREATURE_STROKE_WEIGHT);
+      strokeWeight(Board.CREATURE_STROKE_WEIGHT);
       float endX = (float)getVisionEndX(i);
       float endY = (float)getVisionEndY(i);
       line((float)(px * scaleUp), (float)(py * scaleUp), endX * scaleUp, endY * scaleUp);
@@ -262,7 +257,7 @@ class Creature extends SoftBody {
       ellipse((float)(visionOccludedX[i] * scaleUp), (float)(visionOccludedY[i] * scaleUp), 
         2 * CROSS_SIZE * scaleUp, 2 * CROSS_SIZE * scaleUp);
       stroke((float)(visionResults[i*3]), (float)(visionResults[i * 3 + 1]), (float)(visionResults[i * 3 + 2]));
-      strokeWeight(board.CREATURE_STROKE_WEIGHT);
+      strokeWeight(Board.CREATURE_STROKE_WEIGHT);
       line((float)((visionOccludedX[i] - CROSS_SIZE) * scaleUp), (float)((visionOccludedY[i] - CROSS_SIZE) * scaleUp), 
         (float)((visionOccludedX[i] + CROSS_SIZE) * scaleUp), (float)((visionOccludedY[i] + CROSS_SIZE) * scaleUp));
       line((float)((visionOccludedX[i] - CROSS_SIZE) * scaleUp), (float)((visionOccludedY[i] + CROSS_SIZE) * scaleUp), 

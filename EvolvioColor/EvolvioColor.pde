@@ -1,5 +1,5 @@
 Board evoBoard;
-final int SEED = parseInt(random(1000000));
+final int seed = parseInt(random(1000000));
 final float NOISE_STEP_SIZE = 0.1;
 final int BOARD_WIDTH = 100;
 final int BOARD_HEIGHT = 100;
@@ -40,7 +40,7 @@ void setup() {
   surface.setResizable(true);
   colorMode(HSB, 1.0);
   font = loadFont("Jygquip1-48.vlw");
-  evoBoard = new Board(BOARD_WIDTH, BOARD_HEIGHT, NOISE_STEP_SIZE, MIN_TEMPERATURE, MAX_TEMPERATURE, CREATURE_MINIMUM, SEED, INITIAL_FILE_NAME, TIME_STEP);
+  evoBoard = new Board(BOARD_WIDTH, BOARD_HEIGHT, NOISE_STEP_SIZE, MIN_TEMPERATURE, MAX_TEMPERATURE, CREATURE_MINIMUM, seed, INITIAL_FILE_NAME, TIME_STEP);
   resetZoom();
 }
 void draw() {
