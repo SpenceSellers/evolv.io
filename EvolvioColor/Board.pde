@@ -38,12 +38,6 @@ class Board {
   color buttonColor = color(0.82, 0.8, 0.7);
   Creature[] list = new Creature[LIST_SLOTS];
   
-  String folder = "TEST";
-  int[] fileSaveCounts;
-  double[] fileSaveTimes;
-  double imageSaveInterval = 1;
-  double textSaveInterval = 1;
-  
   boolean userControl; // true = user control, false = brain control.
   double temperature; // Current temperature of the world.
   
@@ -84,13 +78,6 @@ class Board {
     maintainCreatureMinimum(false);
     for (int i = 0; i < LIST_SLOTS; i++) {
       list[i] = null;
-    }
-    folder = INITIAL_FILE_NAME;
-    fileSaveCounts = new int[4];
-    fileSaveTimes = new double[4];
-    for (int i = 0; i < 4; i++) {
-      fileSaveCounts[i] = 0;
-      fileSaveTimes[i] = -999;
     }
     userControl = true;
     timeStep = ts;
@@ -200,8 +187,8 @@ class Board {
 
       textFont(font, 19);
       String[] buttonTexts = {"Brain Control", "Maintain pop. at "+creatureMinimum, 
-        "Screenshot now", "-   Image every "+nf((float)imageSaveInterval, 0, 2)+" years   +", 
-        "Text file now", "-    Text every "+nf((float)textSaveInterval, 0, 2)+" years    +", 
+        "Screenshot now", "-   Old 1   +", 
+        "Text file now", "-    Old 2    +", 
         "-    Play Speed ("+playSpeed+"x)    +", "This button does nothing"};
       if (userControl) {
         buttonTexts[0] = "Keyboard Control";
@@ -211,11 +198,6 @@ class Board {
         float y = floor(i/2)*50+570;
         fill(buttonColor);
         rect(x, y, 220, 40);
-        if (i >= 2 && i < 6) {
-          double flashAlpha = 1.0*Math.pow(0.5, (year-fileSaveTimes[i-2])*FLASH_SPEED);
-          fill(0, 0, 1, (float)flashAlpha);
-          rect(x, y, 220, 40);
-        }
         fill(0, 0, 1, 1);
         text(buttonTexts[i], x+110, y+17);
         if (i == 0) {
@@ -223,7 +205,7 @@ class Board {
           text("-"+creatureMinimumIncrement+
             "                    +"+creatureMinimumIncrement, x+110, y+37);
         } else if (i <= 5) {
-          text(getNextFileName(i-2), x+110, y+37);
+          text("Old File Save", x+110, y+37);
         }
       }
     } else {
@@ -303,14 +285,6 @@ class Board {
       rect((POPULATION_HISTORY_LENGTH-1-i)*barWidth, y2-h, barWidth, h);
     }
   }
-  String getNextFileName(int type) {
-    String[] modes = {"manualImgs", "autoImgs", "manualTexts", "autoTexts"};
-    String ending = ".png";
-    if (type >= 2) {
-      ending = ".txt";
-    }
-    return folder+"/"+modes[type]+"/"+nf(fileSaveCounts[type], 5)+ending;
-  }
   public void iterate(double timeStep) {
     double prevYear = year;
     year += timeStep;
@@ -388,12 +362,6 @@ class Board {
     for (int i = 0; i < creatures.size(); i++) {
       creatures.get(i).applyMotions(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
       creatures.get(i).see(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
-    }
-    if (Math.floor(fileSaveTimes[1]/imageSaveInterval) != Math.floor(year/imageSaveInterval)) {
-      prepareForFileSave(1);
-    }
-    if (Math.floor(fileSaveTimes[3]/textSaveInterval) != Math.floor(year/textSaveInterval)) {
-      prepareForFileSave(3);
     }
   }
   private double getGrowthRate(double theTime) {
@@ -499,27 +467,7 @@ class Board {
     c.drawSoftBody(scaleIconUp, 40.0/scale, false);
     popMatrix();
   }
-  private void prepareForFileSave(int type) {
-    fileSaveTimes[type] = -999999;
-  }
-  private void fileSave() {
-    for (int i = 0; i < 4; i++) {
-      if (fileSaveTimes[i] < -99999) {
-        fileSaveTimes[i] = year;
-        if (i < 2) {
-          saveFrame(getNextFileName(i));
-        } else {
-          String[] data = this.toBigString();
-          saveStrings(getNextFileName(i), data);
-        }
-        fileSaveCounts[i]++;
-      }
-    }
-  }
-  public String[] toBigString() { // Convert current evolvio board into string. Does not work
-    String[] placeholder = {"Goo goo", "Ga ga"};
-    return placeholder;
-  }
+
   public void unselect() {
     selectedCreature = null;
   }

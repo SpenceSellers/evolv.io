@@ -82,7 +82,6 @@ void draw() {
   popMatrix();
   evoBoard.drawUI(SCALE_TO_FIX_BUG, zoom, TIME_STEP, windowHeight, 0, windowWidth, windowHeight, font);
 
-  evoBoard.fileSave();
   prevMouseX = mouseX;
   prevMouseY = mouseY;
 }
@@ -125,27 +124,23 @@ void mousePressed() {
             evoBoard.creatureMinimum += evoBoard.creatureMinimumIncrement;
           }
         } else if (buttonNum == 2) {
-          evoBoard.prepareForFileSave(0);
+          // NONE
         } else if (buttonNum == 3) {
           if (clickedOnLeft) {
-            evoBoard.imageSaveInterval *= 0.5;
+            // NONE
           } else {
-            evoBoard.imageSaveInterval *= 2.0;
+            // NONE
           }
-          if (evoBoard.imageSaveInterval >= 0.7) {
-            evoBoard.imageSaveInterval = Math.round(evoBoard.imageSaveInterval);
-          }
+
         } else if (buttonNum == 4) {
-          evoBoard.prepareForFileSave(2);
+          // NONE
         } else if (buttonNum == 5) {
           if (clickedOnLeft) {
-            evoBoard.textSaveInterval *= 0.5;
+            // NONE
           } else {
-            evoBoard.textSaveInterval *= 2.0;
+            // NONE
           }
-          if (evoBoard.textSaveInterval >= 0.7) {
-            evoBoard.textSaveInterval = Math.round(evoBoard.textSaveInterval);
-          }
+
         } else if (buttonNum == 6) {
           if (clickedOnLeft) {
             if (evoBoard.playSpeed >= 2) {
