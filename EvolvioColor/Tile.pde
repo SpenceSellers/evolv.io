@@ -3,17 +3,17 @@ class Tile {
   public final color fertileColor = color(0, 0, 0.2);
   public final color blackColor = color(0, 1, 0);
   public final color waterColor = color(0, 0, 0);
-  public final float FOOD_GROWTH_RATE = 1.0;
+  public static final float FOOD_GROWTH_RATE = 1.0;
 
-  private double fertility;
-  private double foodLevel;
+  private double fertility; // Values above 1 mean that this tile is WATER.
+  private double foodLevel; // Amount of food on this tile.
   private final float maxGrowthLevel = 3.0;
   private int posX;
   private int posY;
   private double lastUpdateTime = 0;
 
-  public double climateType;
-  public double foodType;
+  public double climateType; // The type (color) of the food that grows on this tile. Between 0 and 1.
+  public double foodType; // The type of food that is actually on the tile. Currently the same as climateType.
 
   Board board;
 

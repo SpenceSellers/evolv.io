@@ -1,26 +1,38 @@
 import java.io.*;
 
 class Board {
-  int boardWidth;
-  int boardHeight;
-  int creatureMinimum;
-  Tile[][] tiles;
-  double year = 0;
-  float MIN_TEMPERATURE;
-  float MAX_TEMPERATURE;
-  final float THERMOMETER_MIN = -2;
-  final float THERMOMETER_MAX = 2;
+  
+  static final float THERMOMETER_MIN = -2; // Minimum climate slider value
+  static final float THERMOMETER_MAX = 2; // Maximum climate slider value
   final int ROCKS_TO_ADD;
-  final float MIN_ROCK_ENERGY_BASE = 0.8;
-  final float MAX_ROCK_ENERGY_BASE = 1.6;
-  final float MIN_CREATURE_ENERGY = 1.2;
-  final float MAX_CREATURE_ENERGY = 2.0;
-  final float ROCK_DENSITY = 5;
-  final float OBJECT_TIMESTEPS_PER_YEAR = 100;
+  static final float MIN_ROCK_ENERGY_BASE = 0.8;
+  static final float MAX_ROCK_ENERGY_BASE = 1.6;
+  static final float MIN_CREATURE_ENERGY = 1.2; // Minimum energy of newly added primordial creatures.
+  static final float MAX_CREATURE_ENERGY = 2.0; // Maximum energy of newly added primordial creatures.
+  static final float ROCK_DENSITY = 5;
+  static final float OBJECT_TIMESTEPS_PER_YEAR = 100;
   final color ROCK_COLOR = color(0, 0, 0.5);
   final color BACKGROUND_COLOR = color(0, 0, 0.1);
-  final float MINIMUM_SURVIVABLE_SIZE = 0.06;
-  final float CREATURE_STROKE_WEIGHT = 0.6;
+  static final float MINIMUM_SURVIVABLE_SIZE = 0.06; // The RADIUS (not energy) at which creatures die.
+  static final float CREATURE_STROKE_WEIGHT = 0.6;
+  
+  final double FLASH_SPEED = 80;
+  double MANUAL_BIRTH_SIZE = 1.2;
+  final int creatureMinimumIncrement = 5;
+  
+  static final int POPULATION_HISTORY_LENGTH = 200;
+  
+  int boardWidth;
+  int boardHeight;
+  int creatureMinimum;   // Minimum number of creatures before more are added.
+  
+  float minTemperature;  // The lowest temperature reached during 'winter'
+  float maxTemperature;  // The hottest temperature reached during 'summer'
+  
+  
+  Tile[][] tiles;
+  double year = 0; // The current date of the simulation
+  
   ArrayList[][] softBodiesInPositions;
   ArrayList<SoftBody> rocks;
   ArrayList<Creature> creatures;
@@ -30,19 +42,19 @@ class Board {
   int creatureRankMetric = 0;
   color buttonColor = color(0.82, 0.8, 0.7);
   Creature[] list = new Creature[LIST_SLOTS];
-  final int creatureMinimumIncrement = 5;
+  
   String folder = "TEST";
   int[] fileSaveCounts;
   double[] fileSaveTimes;
   double imageSaveInterval = 1;
   double textSaveInterval = 1;
-  final double FLASH_SPEED = 80;
-  boolean userControl;
-  double temperature;
-  double MANUAL_BIRTH_SIZE = 1.2;
+  
+  boolean userControl; // true = user control, false = brain control.
+  double temperature; // Current temperature of the world.
+  
   boolean wasPressingB = false;
   double timeStep;
-  int POPULATION_HISTORY_LENGTH = 200;
+  
   int[] populationHistory;
   double recordPopulationEvery = 0.02;
   int playSpeed = 1;
@@ -62,8 +74,8 @@ class Board {
         tiles[x][y] = new Tile(x, y, fertility, 0, climateType, this);
       }
     }
-    MIN_TEMPERATURE = min;
-    MAX_TEMPERATURE = max;
+    minTemperature = min;
+    maxTemperature = max;
 
     softBodiesInPositions = new ArrayList[boardWidth][boardHeight];
     for (int x = 0; x < boardWidth; x++) {
@@ -403,12 +415,12 @@ class Board {
     }
   }
   private double getGrowthRate(double theTime) {
-    double temperatureRange = MAX_TEMPERATURE-MIN_TEMPERATURE;
-    return MIN_TEMPERATURE+temperatureRange*0.5-temperatureRange*0.5*Math.cos(theTime*2*Math.PI);
+    double temperatureRange = maxTemperature-minTemperature;
+    return minTemperature+temperatureRange*0.5-temperatureRange*0.5*Math.cos(theTime*2*Math.PI);
   }
   private double getGrowthOverTimeRange(double startTime, double endTime) {
-    double temperatureRange = MAX_TEMPERATURE-MIN_TEMPERATURE;
-    double m = MIN_TEMPERATURE+temperatureRange*0.5;
+    double temperatureRange = maxTemperature-minTemperature;
+    double m = minTemperature+temperatureRange*0.5;
     return (endTime-startTime)*m+(temperatureRange/Math.PI/4.0)*
       (Math.sin(2*Math.PI*startTime)-Math.sin(2*Math.PI*endTime));
   }
@@ -431,8 +443,8 @@ class Board {
     stroke(0, 0, 1);
     strokeWeight(3);
     line(x1, (float)(zeroLineY), x1+w, (float)(zeroLineY));
-    double minY = y1+h*(1-(MIN_TEMPERATURE-min)/(max-min));
-    double maxY = y1+h*(1-(MAX_TEMPERATURE-min)/(max-min));
+    double minY = y1+h*(1-(minTemperature-min)/(max-min));
+    double maxY = y1+h*(1-(maxTemperature-min)/(max-min));
     fill(0, 0, 0.8);
     line(x1, (float)(minY), x1+w*1.8, (float)(minY));
     line(x1, (float)(maxY), x1+w*1.8, (float)(maxY));
@@ -440,8 +452,8 @@ class Board {
 
     fill(0, 0, 1);
     text("Zero", x1-5, (float)(zeroLineY+8));
-    text(nf(MIN_TEMPERATURE, 0, 2), x1-5, (float)(minY+8));
-    text(nf(MAX_TEMPERATURE, 0, 2), x1-5, (float)(maxY+8));
+    text(nf(minTemperature, 0, 2), x1-5, (float)(minY+8));
+    text(nf(maxTemperature, 0, 2), x1-5, (float)(maxY+8));
   }
   private void drawVerticalSlider(float x1, float y1, float w, float h, double prog, color fillColor, color antiColor) {
     noStroke();
@@ -455,21 +467,21 @@ class Board {
     rect(x1, (float)(y1+h*(1-prog)), w, (float)(prog*h));
   }
   private boolean setMinTemperature(float temp) {
-    MIN_TEMPERATURE = tempBounds(THERMOMETER_MIN+temp*(THERMOMETER_MAX-THERMOMETER_MIN));
-    if (MIN_TEMPERATURE > MAX_TEMPERATURE) {
-      float placeHolder = MAX_TEMPERATURE;
-      MAX_TEMPERATURE = MIN_TEMPERATURE;
-      MIN_TEMPERATURE = placeHolder;
+    minTemperature = tempBounds(THERMOMETER_MIN+temp*(THERMOMETER_MAX-THERMOMETER_MIN));
+    if (minTemperature > maxTemperature) {
+      float placeHolder = maxTemperature;
+      maxTemperature = minTemperature;
+      minTemperature = placeHolder;
       return true;
     }
     return false;
   }
   private boolean setMaxTemperature(float temp) {
-    MAX_TEMPERATURE = tempBounds(THERMOMETER_MIN+temp*(THERMOMETER_MAX-THERMOMETER_MIN));
-    if (MIN_TEMPERATURE > MAX_TEMPERATURE) {
-      float placeHolder = MAX_TEMPERATURE;
-      MAX_TEMPERATURE = MIN_TEMPERATURE;
-      MIN_TEMPERATURE = placeHolder;
+    maxTemperature = tempBounds(THERMOMETER_MIN+temp*(THERMOMETER_MAX-THERMOMETER_MIN));
+    if (minTemperature > maxTemperature) {
+      float placeHolder = maxTemperature;
+      maxTemperature = minTemperature;
+      minTemperature = placeHolder;
       return true;
     }
     return false;
@@ -478,10 +490,10 @@ class Board {
     return min(max(temp, THERMOMETER_MIN), THERMOMETER_MAX);
   }
   private float getHighTempProportion() {
-    return (MAX_TEMPERATURE-THERMOMETER_MIN)/(THERMOMETER_MAX-THERMOMETER_MIN);
+    return (maxTemperature-THERMOMETER_MIN)/(THERMOMETER_MAX-THERMOMETER_MIN);
   }
   private float getLowTempProportion() {
-    return (MIN_TEMPERATURE-THERMOMETER_MIN)/(THERMOMETER_MAX-THERMOMETER_MIN);
+    return (minTemperature-THERMOMETER_MIN)/(THERMOMETER_MAX-THERMOMETER_MIN);
   }
   private String toDate(double d) {
     return "Year "+nf((float)(d), 0, 2);

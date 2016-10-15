@@ -1,49 +1,55 @@
 class Creature extends SoftBody {
-  double ACCELERATION_ENERGY = 0.18;
-  double ACCELERATION_BACK_ENERGY = 0.24;
-  double SWIM_ENERGY = 0.008;
-  double TURN_ENERGY = 0.05;
-  double EAT_ENERGY = 0.05;
-  double EAT_SPEED = 0.5; // 1 is instant, 0 is nonexistent, 0.001 is verrry slow.
-  double EAT_WHILE_MOVING_INEFFICIENCY_MULTIPLIER = 2.0; // The bigger this number is, the less effiently creatures eat when they're moving.
-  double FIGHT_ENERGY = 0.06;
-  double INJURED_ENERGY = 0.25;
-  double METABOLISM_ENERGY = 0.004;
+  static final double ACCELERATION_ENERGY = 0.18;
+  static final double ACCELERATION_BACK_ENERGY = 0.24;
+  static final double SWIM_ENERGY = 0.008; // atio of a creature's energy that is lost due to swimming, per time unit.
+  static final double TURN_ENERGY = 0.05;
+  static final double EAT_ENERGY = 0.05;
+  static final double EAT_SPEED = 0.5; // 1 is instant, 0 is nonexistent, 0.001 is verrry slow.
+  static final double EAT_WHILE_MOVING_INEFFICIENCY_MULTIPLIER = 2.0; // The bigger this number is, the less effiently creatures eat when they're moving.
+  static final double FIGHT_ENERGY = 0.06; // How much energy it takes to fight
+  static final double INJURED_ENERGY = 0.25; // How much energy is taken when a creature gets hurt
+  static final double METABOLISM_ENERGY = 0.004; // What fraction of a creature's energy is lost per time unit, just for existing.
+
+  static final double SAFE_SIZE = 1.25;   // Size at which a creature can reproduce.
+  static final double MATURE_AGE = 0.01;  // Age at which creatures can fight and reproduce.  
+  
+  static final double FOOD_SENSITIVITY = 0.3;  // How tolerant creatures are to food that doesn't match their mouth hue. 1.0 = Color doesn't matter. 0.01 = Very picky.
+  
+  static final int BRAIN_WIDTH = 3;
+  static final int BRAIN_HEIGHT = 13;
+  static final double STARTING_AXON_VARIABILITY = 1.0;
+  static final double AXON_START_MUTABILITY = 0.0005;
+  
+  static final float BRIGHTNESS_THRESHOLD = 0.7; // Brightness at which vision UI turns black
+  static final float CROSS_SIZE = 0.022; // Size of the cross on a creature's vision stalk.
+  static final double MAX_DETAILED_ZOOM = 3.5; // Maximum zoom to draw details at
+  static final int ENERGY_HISTORY_LENGTH = 6;
+  
   String name;
   String parents;
   int gen;
   int id;
-  double MAX_VISION_DISTANCE = 10;
-  double currentEnergy;
-  final int ENERGY_HISTORY_LENGTH = 6;
-  final double SAFE_SIZE = 1.25;
-  double[] previousEnergy = new double[ENERGY_HISTORY_LENGTH];
-  final double MATURE_AGE = 0.01;
-  final double STARTING_AXON_VARIABILITY = 1.0;
-  final double FOOD_SENSITIVITY = 0.3;
-  final double MAX_DETAILED_ZOOM = 3.5; // Maximum zoom to draw details at
 
-  double vr = 0;
-  double rotation = 0;
-  final int BRAIN_WIDTH = 3;
-  final int BRAIN_HEIGHT = 13;
-  final double AXON_START_MUTABILITY = 0.0005;
-  final float BRIGHTNESS_THRESHOLD = 0.7;
+  double vr = 0; // Angular Velocity
+  double rotation = 0; // Angle of rotation
+
   Axon[][][] axons;
   double[][] neurons;
+  
+  double[] previousEnergy = new double[ENERGY_HISTORY_LENGTH];
 
   float preferredRank = 8;
   double[] visionAngles = {0, -0.4, 0.4};
   double[] visionDistances = {0, 0.7, 0.7};
-  //double visionAngle;
-  //double visionDistance;
+  
   double[] visionOccludedX = new double[visionAngles.length];
   double[] visionOccludedY = new double[visionAngles.length];
   double visionResults[] = new double[9];
-  int MEMORY_COUNT = 1;
+  
+  static final int MEMORY_COUNT = 1;
   double[] memories;
 
-  float CROSS_SIZE = 0.022;
+
 
   double mouthHue;
   NameGenerator nameGenerator = new NameGenerator();
