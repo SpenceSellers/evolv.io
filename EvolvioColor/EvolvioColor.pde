@@ -62,21 +62,15 @@ void draw() {
       dragging = 2;
     }
   }
-  if (evoBoard.userControl && evoBoard.selectedCreature != null) {
-    cameraX = (float)evoBoard.selectedCreature.px;
-    cameraY = (float)evoBoard.selectedCreature.py;
-    cameraR = -PI/2.0-(float)evoBoard.selectedCreature.rotation;
-  } else {
-    cameraR = 0;
-  }
+  
+  cameraR = 0;
+  
   pushMatrix();
   scale(scaleFactor);
   evoBoard.drawBlankBoard(SCALE_TO_FIX_BUG);
   translate(BOARD_WIDTH*0.5*SCALE_TO_FIX_BUG, BOARD_HEIGHT*0.5*SCALE_TO_FIX_BUG);
   scale(zoom);
-  if (evoBoard.userControl && evoBoard.selectedCreature != null) {
-    rotate(cameraR);
-  }
+
   translate(-cameraX*SCALE_TO_FIX_BUG, -cameraY*SCALE_TO_FIX_BUG);
   evoBoard.drawBoard(SCALE_TO_FIX_BUG, zoom, (int)toWorldXCoordinate(mouseX, mouseY), (int)toWorldYCoordinate(mouseX, mouseY));
   popMatrix();
@@ -116,7 +110,7 @@ void mousePressed() {
         int mY = (int)(y/50);
         int buttonNum = mX+mY*2;
         if (buttonNum == 0) {
-          evoBoard.userControl = !evoBoard.userControl;
+          // UNUSED
         } else if (buttonNum == 1) {
           if (clickedOnLeft) {
             evoBoard.creatureMinimum -= evoBoard.creatureMinimumIncrement;

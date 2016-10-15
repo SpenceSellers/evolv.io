@@ -38,10 +38,8 @@ class Board {
   color buttonColor = color(0.82, 0.8, 0.7);
   Creature[] list = new Creature[LIST_SLOTS];
   
-  boolean userControl; // true = user control, false = brain control.
   double temperature; // Current temperature of the world.
   
-  boolean wasPressingB = false;
   double timeStep;
   
   int[] populationHistory;
@@ -79,7 +77,6 @@ class Board {
     for (int i = 0; i < LIST_SLOTS; i++) {
       list[i] = null;
     }
-    userControl = false; // Start at brain control
     timeStep = ts;
     populationHistory = new int[POPULATION_HISTORY_LENGTH];
     for (int i = 0; i < POPULATION_HISTORY_LENGTH; i++) {
@@ -186,13 +183,11 @@ class Board {
       text("Sort by: "+sorts[creatureRankMetric], 350, 123);
 
       textFont(font, 19);
-      String[] buttonTexts = {"Brain Control", "Maintain pop. at "+creatureMinimum, 
+      String[] buttonTexts = {"Old 0", "Maintain pop. at "+creatureMinimum, 
         "Old 1", "-   Old 1   +", 
         "Old 1", "-    Old 2    +", 
         "-    Play Speed ("+playSpeed+"x)    +", "This button does nothing"};
-      if (userControl) {
-        buttonTexts[0] = "Keyboard Control";
-      }
+        
       for (int i = 0; i < 8; i++) {
         float x = (i%2)*230+10;
         float y = floor(i/2)*50+570;
@@ -240,10 +235,6 @@ class Board {
       text("Hue: "+nf((float)(selectedCreature.hue), 0, 2), 10, 550, 210, 255);
       text("Mouth hue: "+nf((float)(selectedCreature.mouthHue), 0, 2), 10, 575, 210, 255);
 
-      if (userControl) {
-        text("Controls:\nUp/Down: Move\nLeft/Right: Rotate\nSpace: Eat\nF: Fight\nV: Vomit\nU, J: Change color"+
-          "\nI, K: Change mouth color\nB: Give birth (Not possible if under "+Math.round((MANUAL_BIRTH_SIZE+1)*100)+" yums)", 10, 625, 250, 400);
-      }
       pushMatrix();
       translate(400, 80);
       float apX = round((mouseX-400-x1)/46.0);
@@ -320,36 +311,7 @@ class Board {
       Creature me = creatures.get(i);
       me.collide(timeStep);
       me.metabolize(timeStep);
-      me.useBrain(timeStep, !userControl);
-      if (userControl) {
-        if (me == selectedCreature) {
-          if (keyPressed) {
-            if (key == CODED) {
-              if (keyCode == UP) me.accelerate(0.04, timeStep*OBJECT_TIMESTEPS_PER_YEAR);
-              if (keyCode == DOWN) me.accelerate(-0.04, timeStep*OBJECT_TIMESTEPS_PER_YEAR);
-              if (keyCode == LEFT) me.turn(-0.1, timeStep*OBJECT_TIMESTEPS_PER_YEAR);
-              if (keyCode == RIGHT) me.turn(0.1, timeStep*OBJECT_TIMESTEPS_PER_YEAR);
-            } else {
-              if (key == ' ') me.eat(0.1, timeStep*OBJECT_TIMESTEPS_PER_YEAR);
-              if (key == 'v') me.eat(-0.1, timeStep*OBJECT_TIMESTEPS_PER_YEAR);
-              if (key == 'f')  me.fight(0.5, timeStep*OBJECT_TIMESTEPS_PER_YEAR);
-              if (key == 'u') me.setHue(me.hue+0.02);
-              if (key == 'j') me.setHue(me.hue-0.02);
-
-              if (key == 'i') me.setMouthHue(me.mouthHue+0.02);
-              if (key == 'k') me.setMouthHue(me.mouthHue-0.02);
-              if (key == 'b') {
-                if (!wasPressingB) {
-                  me.reproduce(MANUAL_BIRTH_SIZE, timeStep);
-                }
-                wasPressingB = true;
-              } else {
-                wasPressingB = false;
-              }
-            }
-          }
-        }
-      }
+      me.useBrain(timeStep, true);
       if (me.getRadius() < MINIMUM_SURVIVABLE_SIZE) {
         me.returnToEarth();
         creatures.remove(me);
