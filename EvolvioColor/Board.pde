@@ -437,17 +437,7 @@ class Board {
     text(nf(minTemperature, 0, 2), x1-5, (float)(minY+8));
     text(nf(maxTemperature, 0, 2), x1-5, (float)(maxY+8));
   }
-  private void drawVerticalSlider(float x1, float y1, float w, float h, double prog, color fillColor, color antiColor) {
-    noStroke();
-    fill(0, 0, 0.2);
-    rect(x1, y1, w, h);
-    if (prog >= 0) {
-      fill(fillColor);
-    } else {
-      fill(antiColor);
-    }
-    rect(x1, (float)(y1+h*(1-prog)), w, (float)(prog*h));
-  }
+
   private boolean setMinTemperature(float temp) {
     minTemperature = tempBounds(THERMOMETER_MIN+temp*(THERMOMETER_MAX-THERMOMETER_MIN));
     if (minTemperature > maxTemperature) {
@@ -487,8 +477,8 @@ class Board {
     while (creatures.size() < creatureMinimum) {
       if (choosePreexisting) {
         Creature c = getRandomCreature();
-        c.addEnergy(c.SAFE_SIZE);
-        c.reproduce(c.SAFE_SIZE, timeStep);
+        c.addEnergy(Creature.SAFE_SIZE);
+        c.reproduce(Creature.SAFE_SIZE, timeStep);
       } else {
         creatures.add(new Creature(random(0, boardWidth), random(0, boardHeight), 0, 0, 
           random(MIN_CREATURE_ENERGY, MAX_CREATURE_ENERGY), 1, random(0, 1), 1, 1, 

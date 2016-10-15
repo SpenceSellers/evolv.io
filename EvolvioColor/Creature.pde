@@ -186,7 +186,7 @@ class Creature extends SoftBody {
       turn(neurons[end][2], timeStep);
       eat(neurons[end][3], timeStep);
       fight(neurons[end][4], timeStep * 100);
-      if (neurons[end][5] > 0 && board.year-birthTime >= MATURE_AGE && energy > SAFE_SIZE) {
+      if (neurons[end][5] > 0 && this.getAge() >= MATURE_AGE && energy > SAFE_SIZE) {
         reproduce(SAFE_SIZE, timeStep);
       }
       mouthHue = Math.abs(neurons[end][10]) % 1.0;
@@ -313,6 +313,11 @@ class Creature extends SoftBody {
     int y = yBound((int)choiceY);
     return board.tiles[x][y];
   }
+  
+  public double getAge() {
+    return this.board.year - this.birthTime;
+  }
+  
   public void eat(double attemptedAmount, double timeStep) {
     double amount = attemptedAmount/(1.0+distance(0, 0, vx, vy)*EAT_WHILE_MOVING_INEFFICIENCY_MULTIPLIER); // The faster you're moving, the less efficiently you can eat.
     if (amount < 0) {
@@ -336,7 +341,7 @@ class Creature extends SoftBody {
     }
   }
   public void fight(double amount, double timeStep) {
-    if (amount > 0 && board.year-birthTime >= MATURE_AGE) {
+    if (amount > 0 && this.getAge() >= MATURE_AGE) {
       fightLevel = amount;
       loseEnergy(fightLevel*FIGHT_ENERGY*energy*timeStep);
       for (int i = 0; i < colliders.size(); i++) {
