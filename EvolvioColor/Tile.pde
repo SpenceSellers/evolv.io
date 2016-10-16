@@ -74,14 +74,6 @@ class Tile {
         } else { // Food is dying off. Exponentially approach 0.
           removeFood(foodLevel-foodLevel*Math.pow(2.71828182846, growthChange*FOOD_GROWTH_RATE), false);
         }
-        /*if (growableTime > 0) {
-         if (foodLevel < maxGrowthLevel) {
-         double foodGrowthAmount = (maxGrowthLevel-foodLevel)*fertility*FOOD_GROWTH_RATE*timeStep*growableTime;
-         addFood(foodGrowthAmount, climateType);
-         }
-         } else {
-         foodLevel += maxGrowthLevel*foodLevel*FOOD_GROWTH_RATE*timeStep*growableTime;
-         }*/
       }
       foodLevel = Math.max(foodLevel, 0);
       lastUpdateTime = updateTime;
@@ -127,5 +119,9 @@ class Tile {
   }
   public double inter(double a, double b, double x) {
     return a + (b-a)*x;
+  }
+  
+  public String toString(){
+    return "[Tile level: " + foodLevel + "]";
   }
 }

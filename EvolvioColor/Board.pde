@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.util.function.Consumer;
 
 class Board {
   
@@ -284,7 +285,7 @@ class Board {
       rect((POPULATION_HISTORY_LENGTH-1-i)*barWidth, y2-h, barWidth, h);
     }
   }
-  public void iterate(double timeStep) {
+  public void iterate(final double timeStep) {
     PerfTimer pt = new PerfTimer("board.iterate");
     PerfTimer pt1 = pt.sub("popHistory");
     double prevYear = year;
@@ -324,13 +325,22 @@ class Board {
     maintainCreatureMinimum(false);
     pt1.end();
     
+    pt1 = pt.sub("parallel_each");
+    
+    (new ArrayList<Creature>(this.creatures)).parallelStream().forEach(new Consumer<Creature>() {
+      public void accept(Creature c){
+        c.useBrain(timeStep, true);
+        
+        c.metabolize(timeStep);
+      }
+    });
+    pt1.end();
+    
     
     pt1 = pt.sub("perCreature");
     for (int i = 0; i < creatures.size(); i++) {
       Creature me = creatures.get(i);
       me.collide(timeStep);
-      me.metabolize(timeStep);
-      me.useBrain(timeStep, true);
       if (me.getRadius() < MINIMUM_SURVIVABLE_SIZE) {
         me.returnToEarth();
         creatures.remove(me);
@@ -341,21 +351,33 @@ class Board {
     finishIterate(timeStep);
     pt.end();
   }
-  public void finishIterate(double timeStep) {
+  public void finishIterate(final double timeStep) {
     PerfTimer pt = new PerfTimer("board.finishIterate");
     
     for (Creature cr: this.creatures){
       cr.applyMotions(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
     }
     
+    PerfTimer pt1 = pt.sub("prox");
+    
     Prox prox = new Prox();
     for (Creature cr : this.creatures){
       prox.add(cr.px, cr.py, cr);
     }
     
-    for (Creature cr : this.creatures) {
-      cr.see(timeStep*OBJECT_TIMESTEPS_PER_YEAR, prox.get(cr));
-    }
+    pt1.end();
+    
+    final Prox proxFinal = prox;
+    
+    pt1 = pt.sub("parallel_seeing");
+    this.creatures.parallelStream().forEach(new Consumer<Creature>(){
+      public void accept(Creature c){
+        c.see(timeStep*OBJECT_TIMESTEPS_PER_YEAR, proxFinal.get(c));
+      }
+    });
+    pt1.end();
+    
+    
     pt.end();
   }
   private double getGrowthRate(double theTime) {

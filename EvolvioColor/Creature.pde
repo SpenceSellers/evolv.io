@@ -293,6 +293,7 @@ class Creature extends SoftBody {
   }
   
   public void metabolize(double timeStep) {
+    assert Util.isSane(this.energy): this.energy;
     loseEnergy(energy*METABOLISM_ENERGY*timeStep);
   }
   
@@ -335,6 +336,7 @@ class Creature extends SoftBody {
     } else {
       Tile coveredTile = getRandomCoveredTile();
       double foodToEat = coveredTile.foodLevel*(1-Math.pow((1-EAT_SPEED), amount*timeStep));
+      assert Util.isSane(foodToEat): "" + foodToEat + ", " + coveredTile;
       if (foodToEat > coveredTile.foodLevel) {
         foodToEat = coveredTile.foodLevel;
       }
