@@ -382,20 +382,9 @@ class Creature extends SoftBody {
       getRandomCoveredTile().addFood(energyLost, true);
     }
   }
-  public void see(double timeStep) {
+  public void see(double timeStep, Set<Creature> near) {
     PerfTimer pt = new PerfTimer("Creature See");
-    
-    class CloseTester implements Predicate<Creature> {
-        public boolean test(Creature cr){
-          return cr != Creature.this && distance(Creature.this.px, Creature.this.py, cr.px, cr.py) < 1.0;
-        }
-    }
-    
-    Set<Creature> seeableCreatures = (Set<Creature>)(Object) board.creatures.stream().filter(new CloseTester()).collect(Collectors.toSet());
-    
-    if (seeableCreatures.size() == 0){
-        return;
-    }
+
     for (int k = 0; k < visionAngles.length; k++) {
       double visionStartX = px;
       double visionStartY = py;
@@ -411,17 +400,25 @@ class Creature extends SoftBody {
       visionResults[k*3+1] = saturation(c);
       visionResults[k*3+2] = brightness(c);
       
+      if (near.size() == 0){
+        // Nobody nearby, we don't need to go further.
+        continue;
+      }
+      
+     
       int tileX = 0;
       int tileY = 0;
       int prevTileX = -1;
       int prevTileY = -1;
       
+      
+
       double[][] rotationMatrix = new double[2][2];
       rotationMatrix[1][1] = rotationMatrix[0][0] = Math.cos(-visionTotalAngle);
       rotationMatrix[0][1] = Math.sin(-visionTotalAngle);
       rotationMatrix[1][0] = -rotationMatrix[0][1];
       double visionLineLength = visionDistances[k];
-      for (Creature body: seeableCreatures) {
+      for (Creature body: near) {
         double x = body.px-px;
         double y = body.py-py;
         double r = body.getRadius();
