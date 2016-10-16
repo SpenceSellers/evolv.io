@@ -47,6 +47,8 @@ class Board {
   int[] populationHistory;
   double recordPopulationEvery = 0.02;
   int playSpeed = 1;
+  
+  boolean draw = true;
 
   public Board(int w, int h, float stepSize, float min, float max, int cm, int SEED, String INITIAL_FILE_NAME, double ts) {
     noiseSeed(SEED);
@@ -86,6 +88,9 @@ class Board {
     }
   }
   public void drawBoard(float scaleUp, float camZoom, int mX, int mY) {
+    if (!this.draw){
+      return;
+    }
     PerfTimer pt = new PerfTimer("board.drawBoard");
     for (int x = 0; x < boardWidth; x++) {
       for (int y = 0; y < boardHeight; y++) {
@@ -122,61 +127,63 @@ class Board {
     text("Population: "+creatures.size(), 10, 80);
     String[] seasons = {"Winter", "Spring", "Summer", "Autumn"};
     text(seasons[(int)(getSeason()*4)] + "\nSeed: " + seed, seasonTextXCoor, 30);
-
     if (selectedCreature == null) {
-      for (int i = 0; i < LIST_SLOTS; i++) {
-        list[i] = null;
-      }
-      for (int i = 0; i < creatures.size(); i++) {
-        int lookingAt = 0;
-        if (creatureRankMetric == 4) {
-          while (lookingAt < LIST_SLOTS && list[lookingAt] != null && list[lookingAt].name.compareTo(creatures.get(i).name) < 0) {
-            lookingAt++;
+      if (draw){
+        for (int i = 0; i < LIST_SLOTS; i++) {
+          list[i] = null;
+        }
+        for (int i = 0; i < creatures.size(); i++) {
+          int lookingAt = 0;
+          if (creatureRankMetric == 4) {
+            while (lookingAt < LIST_SLOTS && list[lookingAt] != null && list[lookingAt].name.compareTo(creatures.get(i).name) < 0) {
+              lookingAt++;
+            }
+          } else if (creatureRankMetric == 5) {
+            while (lookingAt < LIST_SLOTS && list[lookingAt] != null && list[lookingAt].name.compareTo(creatures.get(i).name) >= 0) {
+              lookingAt++;
+            }
+          } else {
+            while (lookingAt < LIST_SLOTS && list[lookingAt] != null && list[lookingAt].measure(creatureRankMetric) > creatures.get(i).measure(creatureRankMetric)) {
+              lookingAt++;
+            }
           }
-        } else if (creatureRankMetric == 5) {
-          while (lookingAt < LIST_SLOTS && list[lookingAt] != null && list[lookingAt].name.compareTo(creatures.get(i).name) >= 0) {
-            lookingAt++;
-          }
-        } else {
-          while (lookingAt < LIST_SLOTS && list[lookingAt] != null && list[lookingAt].measure(creatureRankMetric) > creatures.get(i).measure(creatureRankMetric)) {
-            lookingAt++;
+          if (lookingAt < LIST_SLOTS) {
+            for (int j = LIST_SLOTS-1; j >= lookingAt+1; j--) {
+              list[j] = list[j-1];
+            }
+            list[lookingAt] = creatures.get(i);
           }
         }
-        if (lookingAt < LIST_SLOTS) {
-          for (int j = LIST_SLOTS-1; j >= lookingAt+1; j--) {
-            list[j] = list[j-1];
+        double maxEnergy = 0;
+        for (int i = 0; i < LIST_SLOTS; i++) {
+          if (list[i] != null && list[i].energy > maxEnergy) {
+            maxEnergy = list[i].energy;
           }
-          list[lookingAt] = creatures.get(i);
+        }
+        for (int i = 0; i < LIST_SLOTS; i++) {
+          if (list[i] != null) {
+            list[i].preferredRank += (i-list[i].preferredRank)*0.4;
+            float y = y1+175+70*list[i].preferredRank;
+            drawCreature(list[i], 45, y+5, 2.3, scaleUp);
+            textFont(font, 24);
+            textAlign(LEFT);
+            noStroke();
+            fill(0.333, 1, 0.4);
+            float multi = (x2-x1-200);
+            if (list[i].energy > 0) {
+              rect(85, y+5, (float)(multi*list[i].energy/maxEnergy), 25);
+            }
+            if (list[i].energy > 1) {
+              fill(0.333, 1, 0.8);
+              rect(85+(float)(multi/maxEnergy), y+5, (float)(multi*(list[i].energy-1)/maxEnergy), 25);
+            }
+            fill(0, 0, 1);
+            text(list[i].getCreatureName()+" ["+list[i].id+"] ("+toAge(list[i].birthTime)+")", 90, y);
+            text("Energy: "+nf(100*(float)(list[i].energy), 0, 2), 90, y+25);
+          }
         }
       }
-      double maxEnergy = 0;
-      for (int i = 0; i < LIST_SLOTS; i++) {
-        if (list[i] != null && list[i].energy > maxEnergy) {
-          maxEnergy = list[i].energy;
-        }
-      }
-      for (int i = 0; i < LIST_SLOTS; i++) {
-        if (list[i] != null) {
-          list[i].preferredRank += (i-list[i].preferredRank)*0.4;
-          float y = y1+175+70*list[i].preferredRank;
-          drawCreature(list[i], 45, y+5, 2.3, scaleUp);
-          textFont(font, 24);
-          textAlign(LEFT);
-          noStroke();
-          fill(0.333, 1, 0.4);
-          float multi = (x2-x1-200);
-          if (list[i].energy > 0) {
-            rect(85, y+5, (float)(multi*list[i].energy/maxEnergy), 25);
-          }
-          if (list[i].energy > 1) {
-            fill(0.333, 1, 0.8);
-            rect(85+(float)(multi/maxEnergy), y+5, (float)(multi*(list[i].energy-1)/maxEnergy), 25);
-          }
-          fill(0, 0, 1);
-          text(list[i].getCreatureName()+" ["+list[i].id+"] ("+toAge(list[i].birthTime)+")", 90, y);
-          text("Energy: "+nf(100*(float)(list[i].energy), 0, 2), 90, y+25);
-        }
-      }
+      
       noStroke();
       fill(buttonColor);
       rect(10, 95, 220, 40);
@@ -188,7 +195,7 @@ class Board {
       text("Sort by: "+sorts[creatureRankMetric], 350, 123);
 
       textFont(font, 19);
-      String[] buttonTexts = {"Old 0", "Maintain pop. at "+creatureMinimum, 
+      String[] buttonTexts = {"Draw", "Maintain pop. at "+creatureMinimum, 
         "Old 1", "-   Old 1   +", 
         "Old 1", "-    Old 2    +", 
         "-    Play Speed ("+playSpeed+"x)    +", "This button does nothing"};
@@ -201,6 +208,7 @@ class Board {
         fill(0, 0, 1, 1);
         text(buttonTexts[i], x+110, y+17);
         if (i == 0) {
+          
         } else if (i == 1) {
           text("-"+creatureMinimumIncrement+
             "                    +"+creatureMinimumIncrement, x+110, y+37);

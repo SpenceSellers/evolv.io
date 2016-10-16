@@ -111,7 +111,7 @@ void mousePressed() {
         int mY = (int)(y/50);
         int buttonNum = mX+mY*2;
         if (buttonNum == 0) {
-          // UNUSED
+          evoBoard.draw = !evoBoard.draw;
         } else if (buttonNum == 1) {
           if (clickedOnLeft) {
             evoBoard.creatureMinimum -= evoBoard.creatureMinimumIncrement;
