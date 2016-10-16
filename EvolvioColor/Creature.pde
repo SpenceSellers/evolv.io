@@ -379,10 +379,7 @@ class Creature extends SoftBody {
     PerfTimer pt = new PerfTimer("Creature See");
     
     
-    if (near.size() == 0){
-        pt.end();
-        return;
-    }
+    
     for (int k = 0; k < visionAngles.length; k++) {
       double visionStartX = px;
       double visionStartY = py;
@@ -397,6 +394,11 @@ class Creature extends SoftBody {
       visionResults[k*3] = hue(c);
       visionResults[k*3+1] = saturation(c);
       visionResults[k*3+2] = brightness(c);
+      
+      if (near.size() == 0){
+        // Nobody nearby, we don't need to go further.
+        continue;
+      }
       
       
 
