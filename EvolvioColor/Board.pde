@@ -298,7 +298,6 @@ class Board {
     }
     pt1.end();
     
-    
     pt1 = pt.sub("tileGrowth");
     
     temperature = getGrowthRate(getSeason());
@@ -335,7 +334,6 @@ class Board {
       }
     });
     pt1.end();
-    
     
     pt1 = pt.sub("perCreature");
     for (int i = 0; i < creatures.size(); i++) {

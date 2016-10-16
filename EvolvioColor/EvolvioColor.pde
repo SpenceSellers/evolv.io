@@ -202,7 +202,7 @@ void mouseReleased() {
 }
 
 public class DisposeHandler {
-   
+  PerfTimer ptimer = new PerfTimer("!Total");
   DisposeHandler(PApplet pa)
   {
     pa.registerMethod("dispose", this);
@@ -210,6 +210,7 @@ public class DisposeHandler {
    
   public void dispose()
   {      
+    ptimer.endProgram();
     PerfTimer.printTimes();
   }
 }

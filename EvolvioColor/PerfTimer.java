@@ -19,6 +19,7 @@ class PerfTimer {
   }
   
   private static Map<String, TimeData> times = new TreeMap();
+  private static Long total_time = 0L;
   
   static final double MS_IN_NS = 1E-6;
   
@@ -32,11 +33,16 @@ class PerfTimer {
     this.startTime = System.nanoTime();
   }
   
-  public void end(){
+  public long end(){
     
     long endTime = System.nanoTime();
     long time = endTime - this.startTime;
     this.addEntry(time);
+    return time;
+  }
+  
+  public void endProgram(){
+    PerfTimer.total_time = this.end();
   }
   
   public PerfTimer sub(String name){
@@ -63,7 +69,8 @@ class PerfTimer {
     System.out.println("Timings: ");
     for (Map.Entry entry : PerfTimer.times.entrySet()){
       TimeData data = (TimeData) entry.getValue();
-      System.out.println(PerfTimer.indent(PerfTimer.getDepth((String) entry.getKey())) + entry.getKey() + ": " + data.sum * MS_IN_NS + " ms total, " + data.count + " calls, " + (data.sum / data.count) * MS_IN_NS + " ms avg.");
+      double percent = ((double) data.sum / (double) PerfTimer.total_time) * 100.0;
+      System.out.println(PerfTimer.indent(PerfTimer.getDepth((String) entry.getKey())) + entry.getKey() + ": " + data.sum * MS_IN_NS + " ms total, " + data.count + " calls, " + (data.sum / data.count) * MS_IN_NS + " ms avg. (" + percent + "%)");
     }
   }
   

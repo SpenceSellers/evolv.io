@@ -312,6 +312,7 @@ class Creature extends SoftBody {
     loseEnergy(Math.abs(amount*TURN_ENERGY*energy*timeStep));
   }
   public Tile getRandomCoveredTile() {
+    PerfTimer pt = new PerfTimer("creature.getRandomCoveredTile");
     double radius = (float)getRadius();
     double choiceX = 0;
     double choiceY = 0;
@@ -321,7 +322,12 @@ class Creature extends SoftBody {
     }
     int x = xBound((int)choiceX);
     int y = yBound((int)choiceY);
+    pt.end();
     return board.tiles[x][y];
+  }
+  
+  public Tile getTileOn(){
+    return board.tiles[(int) px][(int) py];
   }
   
   public double getAge() {
@@ -334,7 +340,7 @@ class Creature extends SoftBody {
       dropEnergy(-amount*timeStep);
       loseEnergy(-attemptedAmount*EAT_ENERGY*timeStep);
     } else {
-      Tile coveredTile = getRandomCoveredTile();
+      Tile coveredTile = getTileOn();
       double foodToEat = coveredTile.foodLevel*(1-Math.pow((1-EAT_SPEED), amount*timeStep));
       assert Util.isSane(foodToEat): "" + foodToEat + ", " + coveredTile;
       if (foodToEat > coveredTile.foodLevel) {
@@ -378,7 +384,7 @@ class Creature extends SoftBody {
     if (energyLost > 0) {
       energyLost = Math.min(energyLost, energy);
       energy -= energyLost;
-      getRandomCoveredTile().addFood(energyLost, true);
+      getTileOn().addFood(energyLost, true);
     }
   }
   public void see(double timeStep, Set<Creature> near) {
@@ -455,7 +461,7 @@ class Creature extends SoftBody {
     int pieces = 20;
     double radius = (float)getRadius();
     for (int i = 0; i < pieces; i++) {
-      getRandomCoveredTile().addFood(energy/pieces, true);
+      getTileOn().addFood(energy/pieces, true);
     }
     for (int x = SBIPMinX; x <= SBIPMaxX; x++) {
       for (int y = SBIPMinY; y <= SBIPMaxY; y++) {
@@ -570,7 +576,7 @@ class Creature extends SoftBody {
 
   public void applyMotions(double timeStep) {
     PerfTimer pt = new PerfTimer("creature.applyMotions");
-    if (getRandomCoveredTile().isWater()) {
+    if (getTileOn().isWater()) {
       loseEnergy(SWIM_ENERGY*energy);
     }
     super.applyMotions(timeStep);
