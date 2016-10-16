@@ -257,7 +257,8 @@ class Board {
       
       
     }
-    drawPopulationGraph(x1, x2, y1, y2);
+    if (draw) drawPopulationGraph(x1, x2, y1, y2);
+    
     fill(0, 0, 0);
     textAlign(RIGHT);
     textFont(font, 24);
@@ -269,7 +270,7 @@ class Board {
     textAlign(RIGHT);
     textFont(font, 24);
     text("Temperature", -10, 24);
-    drawThermometer(-45, 30, 20, 660, temperature, THERMOMETER_MIN, THERMOMETER_MAX, color(0, 1, 1));
+    if (draw) drawThermometer(-45, 30, 20, 660, temperature, THERMOMETER_MIN, THERMOMETER_MAX, color(0, 1, 1));
     popMatrix();
 
     if (selectedCreature != null) {
