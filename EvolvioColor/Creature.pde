@@ -162,11 +162,8 @@ class Creature extends SoftBody {
     line(x1*scaleUp, y1*scaleUp, x2*scaleUp, y2*scaleUp);
   }
   public void useBrain(double timeStep, boolean useOutput) {
-    
-    
-    
-    PerfTimer pt = new PerfTimer("UseBrain");
-    PerfTimer ptb = new PerfTimer("useBrain.calcBrain");
+    PerfTimer pt = new PerfTimer("creature.useBrain");
+    PerfTimer ptb = new PerfTimer("creature.useBrain.calcBrain");
     for (int i = 0; i < 9; i++) {
       neurons[0][i] = visionResults[i];
     }
@@ -383,7 +380,7 @@ class Creature extends SoftBody {
     }
   }
   public void see(double timeStep, Set<Creature> near) {
-    PerfTimer pt = new PerfTimer("Creature See");
+    PerfTimer pt = new PerfTimer("creature.see");
 
     for (int k = 0; k < visionAngles.length; k++) {
       double visionStartX = px;
@@ -452,6 +449,7 @@ class Creature extends SoftBody {
   }
 
   public void returnToEarth() {
+    PerfTimer pt = new PerfTimer("creature.returnToEarth");
     int pieces = 20;
     double radius = (float)getRadius();
     for (int i = 0; i < pieces; i++) {
@@ -465,6 +463,7 @@ class Creature extends SoftBody {
     if (board.selectedCreature == this) {
       board.unselect();
     }
+    pt.end();
   }
   public void reproduce(double babySize, double timeStep) {
     if (colliders == null) {
@@ -568,7 +567,7 @@ class Creature extends SoftBody {
   }
 
   public void applyMotions(double timeStep) {
-    PerfTimer pt = new PerfTimer("Creature applyMotions");
+    PerfTimer pt = new PerfTimer("creature.applyMotions");
     if (getRandomCoveredTile().isWater()) {
       loseEnergy(SWIM_ENERGY*energy);
     }

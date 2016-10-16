@@ -85,6 +85,7 @@ class Board {
     }
   }
   public void drawBoard(float scaleUp, float camZoom, int mX, int mY) {
+    PerfTimer pt = new PerfTimer("board.drawBoard");
     for (int x = 0; x < boardWidth; x++) {
       for (int y = 0; y < boardHeight; y++) {
         tiles[x][y].drawTile(scaleUp, (mX == x && mY == y));
@@ -93,13 +94,14 @@ class Board {
     for (int i = 0; i < creatures.size(); i++) {
       creatures.get(i).drawSoftBody(scaleUp, camZoom, true);
     }
+    pt.end();
   }
   public void drawBlankBoard(float scaleUp) {
     fill(BACKGROUND_COLOR);
     rect(0, 0, scaleUp*boardWidth, scaleUp*boardHeight);
   }
   public void drawUI(float scaleUp, float camZoom, double timeStep, int x1, int y1, int x2, int y2, PFont font) {
-    PerfTimer pt = new PerfTimer("drawUI");
+    PerfTimer pt = new PerfTimer("board.drawUI");
     fill(0, 0, 0);
     noStroke();
     rect(x1, y1, x2-x1, y2-y1);
@@ -283,8 +285,8 @@ class Board {
     }
   }
   public void iterate(double timeStep) {
-    PerfTimer pt = new PerfTimer("ITERATE");
-    PerfTimer pth = new PerfTimer("Pophistory");
+    PerfTimer pt = new PerfTimer("board.iterate");
+    PerfTimer pt1 = pt.sub("popHistory");
     double prevYear = year;
     year += timeStep;
     if (Math.floor(year/recordPopulationEvery) != Math.floor(prevYear/recordPopulationEvery)) {
@@ -293,9 +295,10 @@ class Board {
       }
       populationHistory[0] = creatures.size();
     }
-    pth.end();
+    pt1.end();
     
     
+    pt1 = pt.sub("tileGrowth");
     
     temperature = getGrowthRate(getSeason());
     double tempChangeIntoThisFrame = temperature-getGrowthRate(getSeason()-timeStep);
@@ -307,18 +310,22 @@ class Board {
         }
       }
     }
-    /*for(int x = 0; x < boardWidth; x++) {
-     for(int y = 0; y < boardHeight; y++) {
-     tiles[x][y].iterate(this, year);
-     }
-     }*/
+    pt1.end();
+    
+    pt1 = pt.sub("prevEnergy");
+
     for (int i = 0; i < creatures.size(); i++) {
       creatures.get(i).setPreviousEnergy();
     }
-    /*for(int i = 0; i < rocks.size(); i++) {
-     rocks.get(i).collide(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
-     }*/
+    
+    pt1.end();
+    
+    pt1 = pt.sub("maintainCreatureMinimum");
     maintainCreatureMinimum(false);
+    pt1.end();
+    
+    
+    pt1 = pt.sub("perCreature");
     for (int i = 0; i < creatures.size(); i++) {
       Creature me = creatures.get(i);
       me.collide(timeStep);
@@ -330,11 +337,12 @@ class Board {
         i--;
       }
     }
+    pt1.end();
     finishIterate(timeStep);
     pt.end();
   }
   public void finishIterate(double timeStep) {
-    
+    PerfTimer pt = new PerfTimer("board.finishIterate");
     
     for (Creature cr: this.creatures){
       cr.applyMotions(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
@@ -348,6 +356,7 @@ class Board {
     for (Creature cr : this.creatures) {
       cr.see(timeStep*OBJECT_TIMESTEPS_PER_YEAR, prox.get(cr));
     }
+    pt.end();
   }
   private double getGrowthRate(double theTime) {
     double temperatureRange = maxTemperature-minTemperature;
