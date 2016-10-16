@@ -5,7 +5,7 @@ class Prox<T> {
   private class ProxData<T> {
     public double x;
     public double y;
-    public Set<T> near = null;
+    private Set<T> near = null;
     
     ProxData(double x, double y){
       this.x = x;
@@ -17,6 +17,14 @@ class Prox<T> {
         this.near = new HashSet();
       }
       this.near.add(t);
+    }
+    
+    public Set<T> getNear(){
+      if (this.near != null){
+        return this.near;
+      } else {
+        return Collections.EMPTY_SET;
+      }
     }
   }
   
@@ -38,11 +46,6 @@ class Prox<T> {
   
   
   public Set<T> get(T t){
-    Set<T> res = this.map.get(t).near;
-    if (res == null){
-      return Collections.EMPTY_SET;
-    } else {
-      return res;
-    }
+    return this.map.get(t).getNear();
   }
 }
