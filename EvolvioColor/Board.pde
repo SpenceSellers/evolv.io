@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 class Board {
   
@@ -333,9 +334,19 @@ class Board {
     pt.end();
   }
   public void finishIterate(double timeStep) {
-    for (int i = 0; i < creatures.size(); i++) {
-      creatures.get(i).applyMotions(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
-      creatures.get(i).see(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
+    
+    
+    for (Creature cr: this.creatures){
+      cr.applyMotions(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
+    }
+    
+    Prox prox = new Prox();
+    for (Creature cr : this.creatures){
+      prox.add(cr.px, cr.py, cr);
+    }
+    
+    for (Creature cr : this.creatures) {
+      cr.see(timeStep*OBJECT_TIMESTEPS_PER_YEAR, prox.get(cr));
     }
   }
   private double getGrowthRate(double theTime) {

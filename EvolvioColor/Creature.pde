@@ -375,16 +375,12 @@ class Creature extends SoftBody {
       getRandomCoveredTile().addFood(energyLost, true);
     }
   }
-  public void see(double timeStep) {
+  public void see(double timeStep, Set<Creature> near) {
     PerfTimer pt = new PerfTimer("Creature See");
-    ArrayList<Creature> seeableCreatures = new ArrayList<Creature>();
-    for (Creature cr: this.board.creatures){
-        if (cr != this && distance(this.px, this.py, cr.px, cr.py) < 1.0){
-          seeableCreatures.add(cr);
-        }
-    }
     
-    if (seeableCreatures.size() == 0){
+    
+    if (near.size() == 0){
+        pt.end();
         return;
     }
     for (int k = 0; k < visionAngles.length; k++) {
@@ -411,7 +407,7 @@ class Creature extends SoftBody {
       
       
       
-      ArrayList<Creature> potentialVisionOccluders = seeableCreatures;
+      ArrayList<Creature> potentialVisionOccluders = new ArrayList(near);
       
       double[][] rotationMatrix = new double[2][2];
       rotationMatrix[1][1] = rotationMatrix[0][0] = Math.cos(-visionTotalAngle);
