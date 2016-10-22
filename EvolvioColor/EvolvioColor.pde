@@ -3,6 +3,7 @@ final int seed = parseInt(random(1000000));
 final float NOISE_STEP_SIZE = 0.1;
 final int BOARD_WIDTH = 100;
 final int BOARD_HEIGHT = 100;
+public static final double MAX_DETAILED_ZOOM = 3.5; // Maximum zoom to draw details at
 
 final float SCALE_TO_FIX_BUG = 100;
 

@@ -30,7 +30,6 @@ class Creature extends SoftBody {
   
   static final float BRIGHTNESS_THRESHOLD = 0.7; // Brightness at which vision UI turns black
   static final float CROSS_SIZE = 0.022; // Size of the cross on a creature's vision stalk.
-  static final double MAX_DETAILED_ZOOM = 3.5; // Maximum zoom to draw details at
   static final int ENERGY_HISTORY_LENGTH = 6;
   
   String name;

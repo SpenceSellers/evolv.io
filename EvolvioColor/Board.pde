@@ -94,7 +94,7 @@ class Board {
     PerfTimer pt = new PerfTimer("board.drawBoard");
     for (int x = 0; x < boardWidth; x++) {
       for (int y = 0; y < boardHeight; y++) {
-        tiles[x][y].drawTile(scaleUp, (mX == x && mY == y));
+        tiles[x][y].drawTile(scaleUp, camZoom,(mX == x && mY == y));
       }
     }
     for (int i = 0; i < creatures.size(); i++) {
